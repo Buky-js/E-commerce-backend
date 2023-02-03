@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try{
     const categoriesData = await Category.findAll({
        // be sure to include its associated Products
-      include: [{model: Product }]
+      include: [{model: Product ,attributes: ['product_name']}]
     });
     res.status(200).json(categoriesData);
   } catch (err){
@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
   }
   res.status(200).json(categoriesData);
  } catch(err){
-  res.status(500)._construct.json(err);
+  res.status(500).json(err);
  }
 })
 
@@ -54,8 +54,25 @@ router.post('/', async (req, res) => {
  
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async(req, res) => {
   // update a category by its `id` value
+  try{
+    const categoriesData = await Category.update({
+      category_name: req.body.category_name
+    },
+    {
+      where: {
+        id:req.params.id
+      }
+    });
+    if(!categoriesData){
+      res.status(404).json({message: 'No category found with that id'});
+      return;
+    }
+    res.status(200).json(categoriesData);
+  }catch(err){
+    res.status(500).json(err);
+  }
 });
 
 router.delete('/:id', async(req, res) => {
